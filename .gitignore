@@ -1,0 +1,5 @@
+# Временные файлы Office и операционной системы
+~$*
+*.tmp
+Thumbs.db
+desktop.ini
