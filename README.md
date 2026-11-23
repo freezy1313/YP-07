@@ -55,8 +55,8 @@ agency-employment-system/
 ## Работа с репозиторием
 
 ```bash
-git clone <URL-репозитория>
-cd agency-employment-system
+git clone https://github.com/freezy1313/YP-07.git
+cd YP-07
 git switch PR1_2
 ```
 
