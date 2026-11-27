@@ -82,12 +82,12 @@ CREATE TABLE users (
         CHECK (phone IS NULL OR phone ~ '^\+?[0-9]{10,15}$')
 );
 
-COMMENT ON TABLE  users IS 'Пользователи: соискатели, работодатели и администраторы';
+COMMENT ON TABLE  users IS 'Пользователи системы';
 COMMENT ON COLUMN users.has_medical_book IS 'Наличие медицинской книжки';
 COMMENT ON COLUMN users.authorization_id IS 'Ссылка на учётные данные (связь 1:1)';
 
 -- =============================================================================
---  2. СОИСКАТЕЛИ, РЕЗЮМЕ И ЖЕЛАЕМЫЕ ДОЛЖНОСТИ
+--  2. РЕЗЮМЕ, ДОЛЖНОСТИ И СТАТУСЫ
 -- =============================================================================
 
 CREATE TABLE desired_positions (
@@ -130,12 +130,12 @@ CREATE TABLE resumes (
         REFERENCES resume_statuses (resume_status_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
-COMMENT ON TABLE  resumes IS 'Резюме соискателей';
+COMMENT ON TABLE  resumes IS 'Резюме пользователей';
 COMMENT ON COLUMN resumes.experience IS 'Описание опыта работы';
 COMMENT ON COLUMN resumes.personal_data_consent IS 'Согласие на обработку персональных данных';
 
 -- =============================================================================
---  3. РАБОТОДАТЕЛИ, ВАКАНСИИ И СПРАВОЧНИКИ
+--  3. ВАКАНСИИ И СПРАВОЧНИКИ
 -- =============================================================================
 
 CREATE TABLE employment_types (
@@ -190,8 +190,8 @@ CREATE TABLE vacancies (
     CONSTRAINT chk_vacancies_dates CHECK (closed_at IS NULL OR closed_at >= opened_at)
 );
 
-COMMENT ON TABLE  vacancies IS 'Вакансии, размещённые работодателями';
-COMMENT ON COLUMN vacancies.user_id IS 'Работодатель — пользователь, разместивший вакансию';
+COMMENT ON TABLE  vacancies IS 'Вакансии, размещённые пользователями';
+COMMENT ON COLUMN vacancies.user_id IS 'Пользователь, разместивший вакансию';
 COMMENT ON COLUMN vacancies.closed_at IS 'Дата закрытия вакансии; NULL — вакансия открыта';
 
 -- =============================================================================
@@ -224,7 +224,7 @@ CREATE TABLE applications (
     CONSTRAINT uq_applications_resume_vacancy UNIQUE (resume_id, vacancy_id)
 );
 
-COMMENT ON TABLE  applications IS 'Отклики соискателей на вакансии';
+COMMENT ON TABLE  applications IS 'Отклики пользователей на вакансии';
 COMMENT ON COLUMN applications.response_date IS 'Дата отклика';
 
 -- =============================================================================
@@ -400,7 +400,7 @@ CREATE VIEW v_resumes AS
 SELECT res.resume_id,
        res.user_id,
        u.last_name || ' ' || u.first_name ||
-           COALESCE(' ' || u.middle_name, '') AS applicant,
+           COALESCE(' ' || u.middle_name, '') AS user_name,
        dp.specialization AS desired_position,
        res.experience,
        rs.name AS status,
@@ -411,13 +411,13 @@ JOIN users u ON u.user_id = res.user_id
 JOIN desired_positions dp ON dp.desired_position_id = res.desired_position_id
 JOIN resume_statuses rs ON rs.resume_status_id = res.resume_status_id;
 
-COMMENT ON VIEW v_resumes IS 'Резюме с ФИО соискателя, должностью и статусом';
+COMMENT ON VIEW v_resumes IS 'Резюме с ФИО пользователя, должностью и статусом';
 
 CREATE VIEW v_vacancies AS
 SELECT v.vacancy_id,
-       v.user_id AS employer_id,
+       v.user_id,
        u.last_name || ' ' || u.first_name ||
-           COALESCE(' ' || u.middle_name, '') AS employer,
+           COALESCE(' ' || u.middle_name, '') AS user_name,
        pt.name AS position_title,
        v.salary,
        et.name AS employment_type,
@@ -431,17 +431,17 @@ JOIN position_titles pt ON pt.position_title_id = v.position_title_id
 JOIN employment_types et ON et.employment_type_id = v.employment_type_id
 JOIN work_modes wm ON wm.work_mode_id = v.work_mode_id;
 
-COMMENT ON VIEW v_vacancies IS 'Вакансии с работодателем, условиями и статусом';
+COMMENT ON VIEW v_vacancies IS 'Вакансии с пользователем, условиями и статусом';
 
 CREATE VIEW v_applications AS
 SELECT a.application_id,
        a.resume_id,
        u.last_name || ' ' || u.first_name ||
-           COALESCE(' ' || u.middle_name, '') AS applicant,
+           COALESCE(' ' || u.middle_name, '') AS resume_user_name,
        a.vacancy_id,
        pt.name AS position_title,
        emp.last_name || ' ' || emp.first_name ||
-           COALESCE(' ' || emp.middle_name, '') AS employer,
+           COALESCE(' ' || emp.middle_name, '') AS vacancy_user_name,
        a.response_date,
        ast.name AS status
 FROM applications a
@@ -452,7 +452,7 @@ JOIN users emp ON emp.user_id = v.user_id
 JOIN position_titles pt ON pt.position_title_id = v.position_title_id
 JOIN application_statuses ast ON ast.application_status_id = a.application_status_id;
 
-COMMENT ON VIEW v_applications IS 'Отклики с соискателем, вакансией, работодателем и статусом';
+COMMENT ON VIEW v_applications IS 'Отклики с пользователями, вакансией и статусом';
 
 COMMIT;
 
