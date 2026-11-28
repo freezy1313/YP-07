@@ -95,3 +95,41 @@ git switch PR1_3
 ```bash
 git log --oneline --graph --decorate --all
 ```
+
+## Практическая работа № 1.4
+
+В ветке `PR1_4` размещено WPF-приложение для работы с базой данных
+`ais_agency_employment`:
+
+- `app/AgencyEmploymentSystem.sln` — решение Visual Studio;
+- `app/AgencyEmploymentApp/` — проект WPF (C#, .NET 8);
+- `app/AgencyEmploymentApp/Data/AppDbContext.cs` — контекст EF Core;
+- `app/AgencyEmploymentApp/Models/` — 12 сущностей, сгенерированных
+  командой `Scaffold-DbContext`;
+- `app/AgencyEmploymentApp/Services/AuthService.cs` — проверка логина
+  и пароля средствами PostgreSQL (`pgcrypto`, bcrypt);
+- `app/AgencyEmploymentApp/LoginWindow.xaml` — окно авторизации;
+- `app/AgencyEmploymentApp/MainWindow.xaml` — главное окно с вкладками
+  «Резюме», «Вакансии», «Отклики».
+
+### Сборка и запуск
+
+```bash
+dotnet build app/AgencyEmploymentApp/AgencyEmploymentApp.csproj
+dotnet run --project app/AgencyEmploymentApp/AgencyEmploymentApp.csproj
+```
+
+Параметры подключения: `Host=localhost;Port=5432;Database=ais_agency_employment;
+Username=postgres;Password=23082008`.
+
+Тестовые учётные записи:
+
+- `seeker01` / `Seeker123!` — соискатель;
+- `seeker02` / `Seeker123!` — соискатель;
+- `employer01` / `Employer123!` — работодатель;
+- `employer02` / `Employer123!` — работодатель;
+- `admin01` / `Admin123!` — администратор.
+
+После входа приложение показывает данные в соответствии с ролью:
+соискатель видит свои резюме и отклики, работодатель — свои вакансии
+и отклики на них, администратор — все записи.

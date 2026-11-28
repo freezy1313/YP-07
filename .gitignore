@@ -3,3 +3,10 @@
 *.tmp
 Thumbs.db
 desktop.ini
+
+# .NET / WPF
+bin/
+obj/
+.vs/
+*.user
+*.suo
