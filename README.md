@@ -104,6 +104,9 @@ git log --oneline --graph --decorate --all
 - `app/AgencyEmploymentSystem.sln` — решение Visual Studio;
 - `app/AgencyEmploymentApp/` — проект WPF (C#, .NET 8);
 - `app/AgencyEmploymentApp/Data/AppDbContext.cs` — контекст EF Core;
+- пакеты `Npgsql` 8.0.6, `Npgsql.EntityFrameworkCore.PostgreSQL` 8.0.11,
+  `Microsoft.EntityFrameworkCore.Tools` 8.0.11 и
+  `Microsoft.EntityFrameworkCore.Design` 8.0.11;
 - `app/AgencyEmploymentApp/Models/` — 12 сущностей, сгенерированных
   командой `Scaffold-DbContext`;
 - `app/AgencyEmploymentApp/Services/AuthService.cs` — проверка логина
